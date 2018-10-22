@@ -1,4 +1,4 @@
-package hortonworks.hdf.kafkastreams.refapp.example;
+package hortonworks.hdf.kafkastreams.refapp.wordcount;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
