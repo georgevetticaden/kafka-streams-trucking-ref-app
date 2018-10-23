@@ -1,4 +1,4 @@
-package hortonworks.hdf.kafkastreams.refapp.truck;
+package hortonworks.hdf.kafkastreams.refapp.truck.consumer;
 
 import static net.sourceforge.argparse4j.impl.Arguments.store;
 
@@ -19,7 +19,7 @@ import com.hortonworks.registries.schemaregistry.serdes.avro.AbstractAvroSnapsho
 import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroDeserializer;
 
 
-public abstract class AbstractConsumeLoop {
+public abstract class BaseConsumer {
 
 
 	protected static Properties getConsumerConfigs(Namespace result) {
@@ -32,6 +32,7 @@ public abstract class AbstractConsumeLoop {
 
 		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
 		
+		/* Setup all the required config/props for the Schema Registry Deserailizer */
 		configureSRDeserializers(props, result);
     
         /* If talking to secure Kafka cluster, set security protocol as "SASL_PLAINTEXT */
@@ -89,11 +90,6 @@ public abstract class AbstractConsumeLoop {
 				.required(true)
 				.type(String.class)
 				.help("Schema Registry url...");		
-
-		parser.addArgument("--topics").action(store())
-				.required(true)
-				.type(String.class)
-				.help("consume messages from topics. Comma separated list e.g. t1,t2");
 
 		parser.addArgument("--groupId").action(store())
 				.required(true)
