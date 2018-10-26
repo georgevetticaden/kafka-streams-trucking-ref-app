@@ -17,7 +17,7 @@ public class DriverAvgSpeedAgregrator implements Aggregator<String, TruckGeoSpee
 		DriverSpeedRunningCountAndSum newAggregation =  new DriverSpeedRunningCountAndSum(value.getDriverId(), value.getDriverName(), 
 									  	aggregate.getRunningCount() + 1, aggregate.getRunningSum() + value.getSpeed());
 		
-		LOGGER.debug("New Avg Aggregtion Value: " + newAggregation.toString());
+		//LOGGER.debug("New Avg Aggregtion Value: " + newAggregation.toString());
 		return newAggregation;
 	}
 

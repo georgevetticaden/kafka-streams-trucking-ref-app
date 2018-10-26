@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.serialization.Serdes.StringSerde;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -30,7 +29,6 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Aggregator;
 import org.apache.kafka.streams.kstream.Initializer;
 import org.apache.kafka.streams.kstream.JoinWindows;
 import org.apache.kafka.streams.kstream.KGroupedStream;
@@ -40,14 +38,11 @@ import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Predicate;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.SessionWindows;
 import org.apache.kafka.streams.kstream.TimeWindowedKStream;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.ValueJoiner;
 import org.apache.kafka.streams.kstream.ValueMapper;
 import org.apache.kafka.streams.kstream.Windowed;
-import org.apache.kafka.streams.kstream.internals.TimeWindow;
-import org.apache.kafka.streams.processor.StateStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,9 +109,28 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
         
         
         /* Calculate average speed of driver over 3 minute window */
-        
+		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = calculateDriverAvgSpeedOver3MinuteWindow(filteredStream);
+		
+		/* Write Stream to Test Topic */
+		writeDriverAvgTableToTestTopic(driverAvgSpeedTable);
+				
+		
+		/* Build Topology */
+		Topology streamsTopology = builder.build();
+		
+		
+		
+		LOGGER.debug("Speeding Driver Streams App Topoogy is: " + streamsTopology.describe());
+		
+		/* Create Streams App */
+		KafkaStreams speedingDriversStreamsApps = new KafkaStreams(streamsTopology, configs);
+		return speedingDriversStreamsApps;
+	}
+
+	private KTable<Windowed<String>, DriverSpeedAvgValue> calculateDriverAvgSpeedOver3MinuteWindow(
+			final KStream<String, TruckGeoSpeedJoin> filteredStream) {
 		//first group by driverId
-        final KGroupedStream<String, TruckGeoSpeedJoin> groupedStream = filteredStream.groupByKey();
+        KGroupedStream<String, TruckGeoSpeedJoin> groupedStream = filteredStream.groupByKey();
         
         //Create a three minute window
         TimeWindows window = TimeWindows.of(TimeUnit.MINUTES.toMillis(3));
@@ -147,28 +161,14 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 			@Override
 			public DriverSpeedAvgValue apply(DriverSpeedRunningCountAndSum driverSpeedSumAndCountValue) {
 				double average = driverSpeedSumAndCountValue.getRunningSum() / driverSpeedSumAndCountValue.getRunningCount();
+				LOGGER.debug("Completed avarage aggregration for Driver["+ driverSpeedSumAndCountValue.getDriverName()+"], runningCount["+driverSpeedSumAndCountValue.getRunningCount()+"], average speed is: " + average);
 				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), driverSpeedSumAndCountValue.getDriverName(), average);
 			}
 		};
 		
 		
 		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = driverSpeedSumAndCountTable.mapValues(averageMapper);
-		writeDriverAvgTableToTestTopic(driverAvgSpeedTable);
-		
-        /* Write Stream to Test Topic */
-		//writeStreamToTestTopic(filteredStream);
-		
-		
-		/* Build Topology */
-		Topology streamsTopology = builder.build();
-		
-		
-		
-		LOGGER.debug("Speeding Driver Streams App Topoogy is: " + streamsTopology.describe());
-		
-		/* Create Streams App */
-		KafkaStreams speedingDriversStreamsApps = new KafkaStreams(streamsTopology, configs);
-		return speedingDriversStreamsApps;
+		return driverAvgSpeedTable;
 	}
 
 
