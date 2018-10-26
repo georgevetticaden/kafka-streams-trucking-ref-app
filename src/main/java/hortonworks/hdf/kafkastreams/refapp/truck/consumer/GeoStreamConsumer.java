@@ -1,6 +1,6 @@
 package hortonworks.hdf.kafkastreams.refapp.truck.consumer;
 
-import hortonworks.hdf.kafkastreams.refapp.wordcount.WordCount;
+import hortonworks.hdf.kafkastreams.refapp.BaseStreamsApp;
 import hortonworks.hdf.schema.refapp.trucking.TruckGeoEventEnriched;
 
 import java.time.Duration;
@@ -15,16 +15,14 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class GeoStreamConsumer extends BaseConsumer {
+public class GeoStreamConsumer extends BaseStreamsApp {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GeoStreamConsumer.class); 	
 	private static final String GEO_STREAM_TOPIC = "syndicate-geo-event-avro";
 	
-	private Properties configs;
-
 	public GeoStreamConsumer(Properties configs) {
-		this.configs = configs;
+		super(configs);
 	}
 
 	public static void main(String[] args) {
@@ -45,7 +43,7 @@ public class GeoStreamConsumer extends BaseConsumer {
                 
                 for(ConsumerRecord<Integer, TruckGeoEventEnriched> truckGeoEventRecord: consumerRecords) {
                 	TruckGeoEventEnriched truckGeoEvent = truckGeoEventRecord.value();
-                	LOGGER.info("The geo event for Driver["+truckGeoEvent.getDriverName() +"] is: " + truckGeoEvent.toString());
+                	LOGGER.info("Key["+truckGeoEventRecord.key()+"], the The geo event for Driver["+truckGeoEvent.getDriverName() +"] is: " + truckGeoEvent.toString());
                 }
             }
         }		

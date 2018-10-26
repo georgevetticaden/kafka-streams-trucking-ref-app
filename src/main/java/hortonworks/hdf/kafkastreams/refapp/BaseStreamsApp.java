@@ -1,4 +1,4 @@
-package hortonworks.hdf.kafkastreams.refapp.truck.consumer;
+package hortonworks.hdf.kafkastreams.refapp;
 
 import static net.sourceforge.argparse4j.impl.Arguments.store;
 
@@ -12,15 +12,26 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.streams.StreamsConfig;
 
 import com.hortonworks.registries.schemaregistry.client.SchemaRegistryClient;
 import com.hortonworks.registries.schemaregistry.serdes.avro.AbstractAvroSnapshotDeserializer;
 import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroDeserializer;
+import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroSerde;
+import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroSerializer;
 
 
-public abstract class BaseConsumer {
+public abstract class BaseStreamsApp {
 
+	static final String STORE_SCHEMA_VERSION_ID_IN_HEADER_POLICY = "false";
+	
+	protected Properties configs;	
+
+	public BaseStreamsApp(Properties kafkaConfig) {
+		this.configs = kafkaConfig;
+	}
 
 	protected static Properties getConsumerConfigs(Namespace result) {
 		Properties props = new Properties();
@@ -48,7 +59,13 @@ public abstract class BaseConsumer {
 		props.put(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(), result.getString("schema.registry.url"));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);        
-        props.put(AbstractAvroSnapshotDeserializer.SPECIFIC_AVRO_READER, true);        
+        
+        /* Setting up default serdes for streams */
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, KafkaAvroSerde.class);
+        props.put(AbstractAvroSnapshotDeserializer.SPECIFIC_AVRO_READER, true);
+        props.put(KafkaAvroSerializer.STORE_SCHEMA_VERSION_ID_IN_HEADER,
+                STORE_SCHEMA_VERSION_ID_IN_HEADER_POLICY);        
 	}		
 	
 	

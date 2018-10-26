@@ -1,5 +1,6 @@
 package hortonworks.hdf.kafkastreams.refapp.truck.consumer;
 
+import hortonworks.hdf.kafkastreams.refapp.BaseStreamsApp;
 import hortonworks.hdf.schema.refapp.trucking.TruckSpeedEventEnriched;
 
 import java.time.Duration;
@@ -14,16 +15,15 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class SpeedStreamConsumer extends BaseConsumer {
+public class SpeedStreamConsumer extends BaseStreamsApp {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpeedStreamConsumer.class); 	
 	private static final String SPEED_STREAM_TOPIC = "syndicate-speed-event-avro";
 	
-	private Properties configs;
 
 	public SpeedStreamConsumer(Properties configs) {
-		this.configs = configs;
+		super(configs);
 	}
 
 	public static void main(String[] args) {
@@ -44,7 +44,7 @@ public class SpeedStreamConsumer extends BaseConsumer {
                 
                 for(ConsumerRecord<Integer, TruckSpeedEventEnriched> truckSpeedEventRecord: consumerRecords) {
                 	TruckSpeedEventEnriched truckSpeedEvent = truckSpeedEventRecord.value();
-                	LOGGER.info("The speed event for Driver["+truckSpeedEvent.getDriverName() +"] is: " + truckSpeedEvent.toString());
+                	LOGGER.info("Key["+truckSpeedEventRecord.key()+"],The speed event for Driver["+truckSpeedEvent.getDriverName() +"] is: " + truckSpeedEvent.toString());
                 }
             }
         }		

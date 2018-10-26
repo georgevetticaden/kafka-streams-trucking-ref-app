@@ -10,6 +10,7 @@
         <log4j2.version>2.6.2</log4j2.version>
         <schema.registry.version>0.5.4.3.3.0.0-123</schema.registry.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>4.5</junit.version>
     </properties>
     
     <dependencies>
@@ -81,7 +82,14 @@
             <groupId>net.sourceforge.argparse4j</groupId>
             <artifactId>argparse4j</artifactId>
             <version>0.7.0</version>
-        </dependency>		
+        </dependency>	
+        
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>        	
 		        
     </dependencies>
 
