@@ -46,7 +46,7 @@ public class TempTruckStreamConsumer extends BaseStreamsApp {
             consumer.subscribe(Collections.singleton(TEMP_TRUCK_STREAMS_TOPIC));
             while (true) {
                 final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(1));
-                LOGGER.info("Number of Records consumed is: " + consumerRecords.count());
+                //LOGGER.info("Number of Records consumed is: " + consumerRecords.count());
                 
                 for(ConsumerRecord<String, String> record: consumerRecords) {
                 	String recordValue = record.value();

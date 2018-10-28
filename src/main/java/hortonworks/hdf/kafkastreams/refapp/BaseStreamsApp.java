@@ -45,6 +45,9 @@ public abstract class BaseStreamsApp {
 		
 		/* Setup all the required config/props for the Schema Registry Deserailizer */
 		configureSRDeserializers(props, result);
+		
+		/* Setting up commit iterval */
+		props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 180000);
     
         /* If talking to secure Kafka cluster, set security protocol as "SASL_PLAINTEXT */
         if("SASL_PLAINTEXT".equals(result.getString("security.protocol"))) {

@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.streams.kstream.Windowed;
+import org.joda.time.DateTime;
 
 public class WindowSerde implements Serde<Windowed<String>> {
 	
@@ -35,7 +36,13 @@ public class WindowSerde implements Serde<Windowed<String>> {
 
 			@Override
 			public byte[] serialize(String topic, Windowed<String> data) {
-				return data.toString().getBytes();
+				
+				StringBuffer buffer = new StringBuffer();
+				buffer.append("windowStart: ");
+				buffer.append(new DateTime( data.window().start()).toString());
+				buffer.append(", end time: ");
+				buffer.append(new DateTime(data.window().end()).toString());
+				return buffer.toString().getBytes();
 			}
 
 			@Override

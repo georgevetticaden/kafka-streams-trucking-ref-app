@@ -71,6 +71,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 	
 	public void run() {
 		
+		/* Build teh kafka Streams Topology */
         KafkaStreams speedingDriversStreamsApps = buildKafkaStreamsSpeedingDriversApp();
 		
         final CountDownLatch latch = new CountDownLatch(1);
@@ -134,6 +135,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
         
         //Create a three minute window
         TimeWindows window = TimeWindows.of(TimeUnit.MINUTES.toMillis(3));
+        window.until(TimeUnit.MINUTES.toMillis(3));
 		TimeWindowedKStream<String, TruckGeoSpeedJoin> windowStream = groupedStream.windowedBy(window);
 		
 		//Do Aggregration
