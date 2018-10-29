@@ -10,7 +10,7 @@ public class JSONPojoSerde {
 	
 	@Test
 	public void serde() {
-		DriverSpeedRunningCountAndSum pojo = new DriverSpeedRunningCountAndSum(1, "George", 1, 1);
+		DriverSpeedRunningCountAndSum pojo = new DriverSpeedRunningCountAndSum(1, "George", "Route 1",  1, 1);
 		JsonPOJOSerializer<DriverSpeedRunningCountAndSum> serializer = new JsonPOJOSerializer<DriverSpeedRunningCountAndSum>();
 		byte[] pojoSerialized = serializer.serialize("test", pojo);
 		

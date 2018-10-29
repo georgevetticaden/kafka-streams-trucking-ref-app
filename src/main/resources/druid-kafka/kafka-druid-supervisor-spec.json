@@ -32,7 +32,7 @@
     "granularitySpec": {
       "type": "uniform",
       "segmentGranularity": "HOUR",
-      "queryGranularity": "MINUTE"
+      "queryGranularity": "MINUTE",
       "windowPeriod": "PT10M"
     }
   },
@@ -41,7 +41,7 @@
     "maxRowsPerSegment": 5000000
   },
   "ioConfig": {
-    "topic": "metrics",
+    "topic": "alerts-speeding-drivers",
     "consumerProperties": {
       "bootstrap.servers": "g-dps-connected-dp11.field.hortonworks.com:6667,g-dps-connected-dp12.field.hortonworks.com:6667,g-dps-connected-dp13.field.hortonworks.com:6667",
       "security.protocol": "SASL_PLAINTEXT"

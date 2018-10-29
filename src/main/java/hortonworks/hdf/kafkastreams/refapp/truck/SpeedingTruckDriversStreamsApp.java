@@ -57,6 +57,8 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 	private static final String TEMP_TRUCK_STREAMS_TOPIC = "temp-truck-streams-output";
 	private static final String ALERTS_SPEEDING_DRIVERS_TOPIC = "alerts-speeding-drivers";
 
+	protected static final double HIGH_SPEED = 80;
+
 	
 	
 	public SpeedingTruckDriversStreamsApp(Properties kafkaConfig) {
@@ -109,26 +111,39 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
         final KStream<String, TruckGeoSpeedJoin> joinedStream = joinStreams(geoStream, speedStream);
 		
         /* Filter the Stream for violation events */
-        final KStream<String, TruckGeoSpeedJoin> filteredStream = filterStream(joinedStream);
-        
+        final KStream<String, TruckGeoSpeedJoin> filteredStream = filterStreamForViolationEvents(joinedStream);
         
         /* Calculate average speed of driver over 3 minute window */
 		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = calculateDriverAvgSpeedOver3MinuteWindow(filteredStream);
 		
-		/* Write Stream to Test Topic */
-		publishedSpeedingDrivers(driverAvgSpeedTable);
+		/* Filter the Stream for speeding drivers */
+		KTable<Windowed<String>, DriverSpeedAvgValue> speedingDriversTable = filterStreamForSpeedingDrivers(driverAvgSpeedTable);
+		
+		/* Publish Speeding Drivers to the Alerts Kafka topic */
+		publishedSpeedingDrivers(speedingDriversTable);
 				
 		
 		/* Build Topology */
 		Topology streamsTopology = builder.build();
-		
-		
-		
+
 		LOGGER.debug("Speeding Driver Streams App Topoogy is: " + streamsTopology.describe());
 		
 		/* Create Streams App */
 		KafkaStreams speedingDriversStreamsApps = new KafkaStreams(streamsTopology, configs);
 		return speedingDriversStreamsApps;
+	}
+
+	private KTable<Windowed<String>, DriverSpeedAvgValue> filterStreamForSpeedingDrivers(
+			KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable) {
+		Predicate<Windowed<String>, DriverSpeedAvgValue> predicate = new Predicate<Windowed<String>, DriverSpeedAvgValue>() {
+
+			@Override
+			public boolean test(Windowed<String> key, DriverSpeedAvgValue value) {
+				return  value != null && value.getSpeed_AVG() > HIGH_SPEED;
+			}
+		};
+		KTable<Windowed<String>, DriverSpeedAvgValue> speedingDriversTable = driverAvgSpeedTable.filter(predicate);
+		return speedingDriversTable;
 	}
 
 	private KTable<Windowed<String>, DriverSpeedAvgValue> calculateDriverAvgSpeedOver3MinuteWindow(
@@ -166,9 +181,9 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 			@Override
 			public DriverSpeedAvgValue apply(DriverSpeedRunningCountAndSum driverSpeedSumAndCountValue) {
 				double average = driverSpeedSumAndCountValue.getRunningSum() / driverSpeedSumAndCountValue.getRunningCount();
-				LOGGER.debug("Completed avarage aggregration for Driver["+ driverSpeedSumAndCountValue.getDriverName()+"], runningCount["+driverSpeedSumAndCountValue.getRunningCount()+"], average speed is: " + average);
+				//LOGGER.debug("Completed avarage aggregration for Driver["+ driverSpeedSumAndCountValue.getDriverName()+"], runningCount["+driverSpeedSumAndCountValue.getRunningCount()+"], average speed is: " + average);
 				long eventTimeLong = new Date().getTime();
-				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), driverSpeedSumAndCountValue.getDriverName(), average, eventTimeLong);
+				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), driverSpeedSumAndCountValue.getDriverName(), driverSpeedSumAndCountValue.getRoute(), average, eventTimeLong);
 			}
 		};
 		
@@ -178,7 +193,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 	}
 
 
-	private KStream<String, TruckGeoSpeedJoin> filterStream(
+	private KStream<String, TruckGeoSpeedJoin> filterStreamForViolationEvents(
 			final KStream<String, TruckGeoSpeedJoin> joinedStream) {
 		Predicate<String, TruckGeoSpeedJoin> violationEventPredicate = new Predicate<String, TruckGeoSpeedJoin>() {
 

@@ -6,14 +6,16 @@ public class DriverSpeedAvgValue {
 	
 	private Integer driverId;
 	private String driverName;
+	private String route;
 	private double speed_AVG;
 	private long processingTime;
 	
-	public DriverSpeedAvgValue(Integer driverId, String driverName,
+	public DriverSpeedAvgValue(Integer driverId, String driverName, String route,
 			double average, long processingTime) {
 		super();
 		this.driverId = driverId;
 		this.driverName = driverName;
+		this.route = route;
 		this.speed_AVG = average;
 		this.processingTime = processingTime;
 	}
@@ -46,4 +48,15 @@ public class DriverSpeedAvgValue {
 	}
 
 
+	public String getRoute() {
+		return route;
+	}
+
+
+	public void setRoute(String route) {
+		this.route = route;
+	}
+
+
+	
 }

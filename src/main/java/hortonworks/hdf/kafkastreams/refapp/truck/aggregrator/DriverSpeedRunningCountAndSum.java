@@ -6,14 +6,16 @@ public class DriverSpeedRunningCountAndSum {
 	
 	private Integer driverId = -1;
 	private String driverName = "";
+	private String route;
 	private int runningCount = 0;
 	private int runningSum = 0;
 	
-	public DriverSpeedRunningCountAndSum(Integer driverId, String driverName,
+	public DriverSpeedRunningCountAndSum(Integer driverId, String driverName, String route,
 			int runningCount, int runningSum) {
 		super();
 		this.driverId = driverId;
 		this.driverName = driverName;
+		this.route = route;
 		this.runningCount = runningCount;
 		this.runningSum = runningSum;
 	}
@@ -45,5 +47,10 @@ public class DriverSpeedRunningCountAndSum {
 		return ReflectionToStringBuilder.toString(this);
 	}
 
+	public String getRoute() {
+		return route;
+	}
 
+
+	
 }
