@@ -23,7 +23,7 @@ public class TempTruckStreamConsumer extends BaseStreamsApp {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TempTruckStreamConsumer.class); 	
-	private static final String TEMP_TRUCK_STREAMS_TOPIC = "temp-truck-streams-output";
+	private static final String TEMP_TRUCK_STREAMS_TOPIC = "alerts-speeding-drivers";
 	
 
 	public TempTruckStreamConsumer(Properties configs) {

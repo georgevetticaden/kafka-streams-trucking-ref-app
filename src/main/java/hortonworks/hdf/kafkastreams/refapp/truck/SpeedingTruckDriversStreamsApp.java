@@ -13,6 +13,7 @@ import hortonworks.hdf.schema.refapp.trucking.TruckGeoEventEnriched;
 import hortonworks.hdf.schema.refapp.trucking.TruckSpeedEventEnriched;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -54,6 +55,8 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 	private static final String GEO_STREAM_TOPIC = "syndicate-geo-event-avro";	
 	private static final String SPEED_STREAM_TOPIC = "syndicate-speed-event-avro";
 	private static final String TEMP_TRUCK_STREAMS_TOPIC = "temp-truck-streams-output";
+	private static final String ALERTS_SPEEDING_DRIVERS_TOPIC = "alerts-speeding-drivers";
+
 	
 	
 	public SpeedingTruckDriversStreamsApp(Properties kafkaConfig) {
@@ -113,7 +116,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = calculateDriverAvgSpeedOver3MinuteWindow(filteredStream);
 		
 		/* Write Stream to Test Topic */
-		writeDriverAvgTableToTestTopic(driverAvgSpeedTable);
+		publishedSpeedingDrivers(driverAvgSpeedTable);
 				
 		
 		/* Build Topology */
@@ -164,7 +167,8 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 			public DriverSpeedAvgValue apply(DriverSpeedRunningCountAndSum driverSpeedSumAndCountValue) {
 				double average = driverSpeedSumAndCountValue.getRunningSum() / driverSpeedSumAndCountValue.getRunningCount();
 				LOGGER.debug("Completed avarage aggregration for Driver["+ driverSpeedSumAndCountValue.getDriverName()+"], runningCount["+driverSpeedSumAndCountValue.getRunningCount()+"], average speed is: " + average);
-				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), driverSpeedSumAndCountValue.getDriverName(), average);
+				long eventTimeLong = new Date().getTime();
+				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), driverSpeedSumAndCountValue.getDriverName(), average, eventTimeLong);
 			}
 		};
 		
@@ -172,11 +176,6 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = driverSpeedSumAndCountTable.mapValues(averageMapper);
 		return driverAvgSpeedTable;
 	}
-
-
-
-
-
 
 
 	private KStream<String, TruckGeoSpeedJoin> filterStream(
@@ -237,7 +236,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
         outputForTempTopic.to(TEMP_TRUCK_STREAMS_TOPIC, Produced.with(Serdes.String(), Serdes.String()));
 	}	
 
-	private void writeDriverAvgTableToTestTopic(
+	private void publishedSpeedingDrivers(
 			KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable) {
 		
 		KStream<Windowed<String>, DriverSpeedAvgValue> outputForTempTopic =  driverAvgSpeedTable.toStream();
@@ -266,7 +265,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 				return new JsonPOJODeserializer<DriverSpeedAvgValue>(DriverSpeedAvgValue.class);
 			}
 		};
-		outputForTempTopic.to(TEMP_TRUCK_STREAMS_TOPIC, Produced.with(new WindowSerde(), driverAvgSpeedSerde ));
+		outputForTempTopic.to(ALERTS_SPEEDING_DRIVERS_TOPIC, Produced.with(new WindowSerde(), driverAvgSpeedSerde ));
 		
 		
 	}	

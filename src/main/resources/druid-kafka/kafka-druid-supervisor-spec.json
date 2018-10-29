@@ -1,0 +1,53 @@
+{
+  "type": "kafka",
+  "dataSchema": {
+    "dataSource": "speeding-drivers-cube",
+    "parser": {
+      "type": "string",
+      "parseSpec": {
+        "format": "json",
+        "timestampSpec": {
+          "column": "processingTime",
+          "format": "auto"
+        },
+        "dimensionsSpec": {
+          "dimensions": [
+		  	"driverId",
+			"driverName",
+			"route",
+			"speed_AVG"          
+          ],
+          "dimensionExclusions": [
+            "processingTime"
+          ]
+        }
+      }
+    },
+    "metricsSpec": [
+      {
+        "name": "count",
+        "type": "count"
+      }
+    ],
+    "granularitySpec": {
+      "type": "uniform",
+      "segmentGranularity": "HOUR",
+      "queryGranularity": "MINUTE"
+      "windowPeriod": "PT10M"
+    }
+  },
+  "tuningConfig": {
+    "type": "kafka",
+    "maxRowsPerSegment": 5000000
+  },
+  "ioConfig": {
+    "topic": "metrics",
+    "consumerProperties": {
+      "bootstrap.servers": "g-dps-connected-dp11.field.hortonworks.com:6667,g-dps-connected-dp12.field.hortonworks.com:6667,g-dps-connected-dp13.field.hortonworks.com:6667",
+      "security.protocol": "SASL_PLAINTEXT"
+    },
+    "taskCount": 1,
+    "replicas": 1,
+    "taskDuration": "PT1H"
+  }
+}
