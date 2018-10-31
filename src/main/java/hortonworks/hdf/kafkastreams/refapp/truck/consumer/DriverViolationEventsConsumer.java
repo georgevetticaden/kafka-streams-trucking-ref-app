@@ -1,41 +1,36 @@
 package hortonworks.hdf.kafkastreams.refapp.truck.consumer;
 
-import hortonworks.hdf.kafkastreams.refapp.BaseStreamsApp;
-import hortonworks.hdf.schema.refapp.trucking.TruckSpeedEventEnriched;
+import hortonworks.hdf.kafkastreams.refapp.BaseConsumerClient;
 
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Properties;
+import java.util.Map;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroDeserializer;
 
 
-
-public class DriverViolationEventsConsumer extends BaseStreamsApp {
+public class DriverViolationEventsConsumer extends BaseConsumerClient {
 	
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DriverViolationEventsConsumer.class); 	
 	private static final String DRIVER_VIOLATION_EVENTS_TOPIC= "driver-violation-events";
 	
 
-	public DriverViolationEventsConsumer(Properties configs) {
+	public DriverViolationEventsConsumer(Map<String, Object> configs) {
 		super(configs);
-		overrideSerdes(configs);
+
 	}
 
 
 	public static void main(String[] args) {
 		
-		Properties kafkaConfig = createKafkaConfiguration(args);
-		DriverViolationEventsConsumer speedStreamConsumer = new DriverViolationEventsConsumer(kafkaConfig);
+		Map<String, Object> consumerConfig = createKafkaConfiguration(args);
+		DriverViolationEventsConsumer speedStreamConsumer = new DriverViolationEventsConsumer(consumerConfig);
 		speedStreamConsumer.consume();
 		
 	}
@@ -55,13 +50,5 @@ public class DriverViolationEventsConsumer extends BaseStreamsApp {
             }
         }		
 	}
-
-
-	private void overrideSerdes(Properties configs) {
-		configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);  
-		
-	}
-	
 
 }

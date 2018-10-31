@@ -2,6 +2,7 @@ package hortonworks.hdf.kafkastreams.refapp;
 
 import static net.sourceforge.argparse4j.impl.Arguments.store;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
@@ -13,18 +14,23 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.StreamsConfig;
 
+import com.hortonworks.registries.schemaregistry.client.SchemaRegistryClient;
+import com.hortonworks.registries.schemaregistry.serdes.avro.AbstractAvroSnapshotDeserializer;
+import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroDeserializer;
+import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroSerde;
+import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroSerializer;
 
-public abstract class BaseStreamsApp {
 
-	protected static final String STORE_SCHEMA_VERSION_ID_IN_HEADER_POLICY = "false";
+public abstract class BaseConsumerClient {
 	
 	protected Properties configs;	
 
-	public BaseStreamsApp(Map<String, Object> kafkaConfigMap, String streamAppId) {
+	public BaseConsumerClient(Map<String, Object> kafkaConfigMap) {
 		this.configs = getConsumerConfigs(kafkaConfigMap);
-		this.configs.put(StreamsConfig.APPLICATION_ID_CONFIG, streamAppId );
 	}
 
 	protected Properties getConsumerConfigs(Map<String, Object> configMap) {
@@ -49,11 +55,9 @@ public abstract class BaseStreamsApp {
 	}
 	
 	protected void configureSerdes(Properties props, Map<String, Object> configMap) {
-		/* Configure Default Serdes */
-		props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
-		props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);        
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);        
 	}		
-		
 	
 	
 	protected static Map<String, Object> createKafkaConfiguration(String[] args) {
@@ -127,5 +131,5 @@ public abstract class BaseStreamsApp {
 
 		return parser;
 	}
-	
+
 }

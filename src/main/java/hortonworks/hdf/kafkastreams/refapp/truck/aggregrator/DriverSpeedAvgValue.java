@@ -10,6 +10,11 @@ public class DriverSpeedAvgValue {
 	private double speed_AVG;
 	private long processingTime;
 	
+	public DriverSpeedAvgValue() {
+
+	}
+
+
 	public DriverSpeedAvgValue(Integer driverId, String driverName, String route,
 			double average, long processingTime) {
 		super();

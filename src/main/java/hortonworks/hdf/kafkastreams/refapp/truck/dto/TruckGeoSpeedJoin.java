@@ -26,6 +26,38 @@ public class TruckGeoSpeedJoin {
 	  private String speedEventTime;
 	  private long speedEventTimeLong;
 	  private int speed;
+	  
+	
+
+	public TruckGeoSpeedJoin() {
+
+	}
+
+	public TruckGeoSpeedJoin(long __time, String geoEventTime,
+			long geoEventTimeLong, String eventSource, int truckId,
+			int driverId, String driverName, int routeId, String route,
+			String eventType, double latitude, double longitude,
+			long correlationId, String geoAddress, String speedEventTime,
+			long speedEventTimeLong, int speed) {
+		super();
+		this.__time = __time;
+		this.geoEventTime = geoEventTime;
+		this.geoEventTimeLong = geoEventTimeLong;
+		this.eventSource = eventSource;
+		this.truckId = truckId;
+		this.driverId = driverId;
+		this.driverName = driverName;
+		this.routeId = routeId;
+		this.route = route;
+		this.eventType = eventType;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.correlationId = correlationId;
+		this.geoAddress = geoAddress;
+		this.speedEventTime = speedEventTime;
+		this.speedEventTimeLong = speedEventTimeLong;
+		this.speed = speed;
+	}
 
 	public TruckGeoSpeedJoin(TruckGeoEventEnriched geoStream, TruckSpeedEventEnriched speedStream) {
 		this.geoEventTime = String.valueOf(geoStream.getEventTime());
