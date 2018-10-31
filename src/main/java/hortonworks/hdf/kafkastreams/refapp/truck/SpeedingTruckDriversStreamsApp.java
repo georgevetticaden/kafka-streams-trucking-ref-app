@@ -8,6 +8,7 @@ import hortonworks.hdf.kafkastreams.refapp.truck.dto.TruckGeoSpeedJoin;
 import hortonworks.hdf.kafkastreams.refapp.truck.serde.DriverSpeedRunningCountAndSumSerde;
 import hortonworks.hdf.kafkastreams.refapp.truck.serde.JsonPOJODeserializer;
 import hortonworks.hdf.kafkastreams.refapp.truck.serde.JsonPOJOSerializer;
+import hortonworks.hdf.kafkastreams.refapp.truck.serde.TruckGeoSpeedJoinSerde;
 import hortonworks.hdf.kafkastreams.refapp.truck.serde.WindowSerde;
 import hortonworks.hdf.schema.refapp.trucking.TruckGeoEventEnriched;
 import hortonworks.hdf.schema.refapp.trucking.TruckSpeedEventEnriched;
@@ -56,6 +57,7 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 	private static final String SPEED_STREAM_TOPIC = "syndicate-speed-event-avro";
 	private static final String TEMP_TRUCK_STREAMS_TOPIC = "temp-truck-streams-output";
 	private static final String ALERTS_SPEEDING_DRIVERS_TOPIC = "alerts-speeding-drivers";
+	private static final String DRIVER_VIOLATION_EVENTS_TOPIC= "driver-violation-events";
 
 	protected static final double HIGH_SPEED = 80;
 
@@ -112,6 +114,9 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 		
         /* Filter the Stream for violation events */
         final KStream<String, TruckGeoSpeedJoin> filteredStream = filterStreamForViolationEvents(joinedStream);
+        
+        /* Write the violation events to the violation topic */
+        filteredStream.to(DRIVER_VIOLATION_EVENTS_TOPIC, Produced.with(new Serdes.StringSerde(), new TruckGeoSpeedJoinSerde()));
         
         /* Calculate average speed of driver over 3 minute window */
 		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = calculateDriverAvgSpeedOver3MinuteWindow(filteredStream);
@@ -234,21 +239,8 @@ public class SpeedingTruckDriversStreamsApp extends BaseStreamsApp {
 	}
 	
 	private void writeStreamToTestTopic(final KStream<String, TruckGeoSpeedJoin> joinedStream) {
-		KeyValueMapper<String, TruckGeoSpeedJoin, Iterable<KeyValue<String, String>>> mapper = 
-				new KeyValueMapper<String, TruckGeoSpeedJoin, Iterable<KeyValue<String,String>>>() {
 
-			@Override
-			public Iterable<KeyValue<String, String>> apply(String key,
-					TruckGeoSpeedJoin geoSpeedJoin) {
-				List<KeyValue<String, String>> result = new ArrayList<KeyValue<String,String>>();
-				result.add(new KeyValue<String, String>(key, geoSpeedJoin.toString()));
-				return result;
-			}
-		};
-		
-		/* Write Stream to temp test topic */
-        final KStream<String, String> outputForTempTopic = joinedStream.flatMap(mapper);
-        outputForTempTopic.to(TEMP_TRUCK_STREAMS_TOPIC, Produced.with(Serdes.String(), Serdes.String()));
+        joinedStream.to(TEMP_TRUCK_STREAMS_TOPIC, Produced.with(Serdes.String(), new TruckGeoSpeedJoinSerde()));
 	}	
 
 	private void publishedSpeedingDrivers(

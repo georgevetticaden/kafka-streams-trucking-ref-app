@@ -1,0 +1,60 @@
+{
+  "type": "kafka",
+  "dataSchema": {
+    "dataSource": "driver-violation-cube",
+    "parser": {
+      "type": "string",
+      "parseSpec": {
+        "format": "json",
+        "timestampSpec": {
+          "column": "geoEventTimeLong",
+          "format": "auto"
+        },
+        "dimensionsSpec": {
+          "dimensions": [
+			"eventSource",
+			"truckId",
+			"driverId",
+			"driverName",
+			"routeId",
+			"route", 
+			"eventType", 
+			"latitude", 
+			"longitude", 
+			"correlationId",
+			"geoAddress"         
+          ],
+          "dimensionExclusions": [
+            "geoEventTimeLong"
+          ]
+        }
+      }
+    },
+    "metricsSpec": [
+      {
+        "name": "count",
+        "type": "count"
+      }
+    ],
+    "granularitySpec": {
+      "type": "uniform",
+      "segmentGranularity": "HOUR",
+      "queryGranularity": "MINUTE",
+      "windowPeriod": "PT10M"
+    }
+  },
+  "tuningConfig": {
+    "type": "kafka",
+    "maxRowsPerSegment": 5000000
+  },
+  "ioConfig": {
+    "topic": "driver-violation-events",
+    "consumerProperties": {
+      "bootstrap.servers": "g-dps-connected-dp11.field.hortonworks.com:6667,g-dps-connected-dp12.field.hortonworks.com:6667,g-dps-connected-dp13.field.hortonworks.com:6667",
+      "security.protocol": "SASL_PLAINTEXT"
+    },
+    "taskCount": 1,
+    "replicas": 1,
+    "taskDuration": "PT1H"
+  }
+}

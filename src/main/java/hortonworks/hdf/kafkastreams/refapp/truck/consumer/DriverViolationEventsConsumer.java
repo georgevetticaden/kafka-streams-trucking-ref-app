@@ -19,14 +19,14 @@ import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroDese
 
 
 
-public class TempTruckStreamConsumer extends BaseStreamsApp {
+public class DriverViolationEventsConsumer extends BaseStreamsApp {
 	
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(TempTruckStreamConsumer.class); 	
-	private static final String TEMP_TRUCK_STREAMS_TOPIC = "alerts-speeding-drivers";
+	private static final Logger LOGGER = LoggerFactory.getLogger(DriverViolationEventsConsumer.class); 	
+	private static final String DRIVER_VIOLATION_EVENTS_TOPIC= "driver-violation-events";
 	
 
-	public TempTruckStreamConsumer(Properties configs) {
+	public DriverViolationEventsConsumer(Properties configs) {
 		super(configs);
 		overrideSerdes(configs);
 	}
@@ -35,7 +35,7 @@ public class TempTruckStreamConsumer extends BaseStreamsApp {
 	public static void main(String[] args) {
 		
 		Properties kafkaConfig = createKafkaConfiguration(args);
-		TempTruckStreamConsumer speedStreamConsumer = new TempTruckStreamConsumer(kafkaConfig);
+		DriverViolationEventsConsumer speedStreamConsumer = new DriverViolationEventsConsumer(kafkaConfig);
 		speedStreamConsumer.consume();
 		
 	}
@@ -43,7 +43,7 @@ public class TempTruckStreamConsumer extends BaseStreamsApp {
 	
 	public void consume() {
 		try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(configs)) {
-            consumer.subscribe(Collections.singleton(TEMP_TRUCK_STREAMS_TOPIC));
+            consumer.subscribe(Collections.singleton(DRIVER_VIOLATION_EVENTS_TOPIC));
             while (true) {
                 final ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofSeconds(1));
                 //LOGGER.info("Number of Records consumed is: " + consumerRecords.count());

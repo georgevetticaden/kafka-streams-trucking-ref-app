@@ -7,6 +7,8 @@ import hortonworks.hdf.schema.refapp.trucking.TruckSpeedEventEnriched;
 
 public class TruckGeoSpeedJoin {
 	
+	  /* This field is required for the Hive Kafka druid index service */
+	  private long __time;
 	  private String geoEventTime;
 	  private long geoEventTimeLong;
 	  private String eventSource;
@@ -43,6 +45,8 @@ public class TruckGeoSpeedJoin {
 		this.speedEventTime = String.valueOf(speedStream.getEventTime());
 		this.speedEventTimeLong = speedStream.getEventTimeLong();
 		this.speed = speedStream.getSpeed();
+		
+		this.__time = geoStream.getEventTimeLong();
 	}
 
 	public String getGeoEventTime() {
@@ -113,7 +117,12 @@ public class TruckGeoSpeedJoin {
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);
 	}
+
+	public long get__time() {
+		return __time;
+	}
+
 	
-	
+
 
 }
