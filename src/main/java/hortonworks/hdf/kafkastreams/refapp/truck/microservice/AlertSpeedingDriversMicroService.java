@@ -33,8 +33,6 @@ public class AlertSpeedingDriversMicroService extends BaseStreamsApp {
 	
 	public AlertSpeedingDriversMicroService(Map<String, Object> kafkaConfigMap) {
 		super(kafkaConfigMap, STREAMS_APP_ID );
-		/* Override with the SR Serdes */
-		configureSerdes(configs, kafkaConfigMap);
 		
 	}
 
@@ -105,6 +103,7 @@ public class AlertSpeedingDriversMicroService extends BaseStreamsApp {
 		
 			@Override
 			public boolean test(String key, DriverSpeedAvgValue value) {
+				LOGGER.info("AVerage speed that filter be applied is: " + value);
 				return  value != null && value.getSpeed_AVG() > HIGH_SPEED;
 			}
 		};
