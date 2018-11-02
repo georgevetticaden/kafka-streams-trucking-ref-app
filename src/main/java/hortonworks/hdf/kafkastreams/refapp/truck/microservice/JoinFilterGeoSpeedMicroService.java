@@ -33,7 +33,7 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JoinFilterGeoSpeedMicroService.class);			
 	
-	private static final String STREAMS_APP_ID = "truck-geo-speed--join-filter-micro-service";
+	private static final String STREAMS_APP_ID = "truck-micro-service-geo-speed-join-filter";
 	
 	private static final String SOURCE_GEO_STREAM_TOPIC = "syndicate-geo-event-avro";	
 	private static final String SOURCE_SPEED_STREAM_TOPIC = "syndicate-speed-event-avro";
@@ -83,27 +83,31 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 	private KafkaStreams buildKafkaStreamsApp() {
 		
 		StreamsBuilder builder = new StreamsBuilder();
-        
-
 		
         /* Create the 2 Streams */
-        final KStream<String, TruckGeoEventEnriched> geoStream = builder.stream(SOURCE_GEO_STREAM_TOPIC);		
-        final KStream<String, TruckSpeedEventEnriched> speedStream = builder.stream(SOURCE_SPEED_STREAM_TOPIC);		
+        final KStream<String, TruckGeoEventEnriched> geoStream = 
+        		builder.stream(SOURCE_GEO_STREAM_TOPIC);		
+        final KStream<String, TruckSpeedEventEnriched> speedStream = 
+        		builder.stream(SOURCE_SPEED_STREAM_TOPIC);		
 
         /* Join the Streams */
-        final KStream<String, TruckGeoSpeedJoin> joinedStream = joinStreams(geoStream, speedStream);
+        final KStream<String, TruckGeoSpeedJoin> joinedStream = 
+        		joinStreams(geoStream, speedStream);
 		
         /* Filter the Stream for violation events */
-        final KStream<String, TruckGeoSpeedJoin> filteredStream = filterStreamForViolationEvents(joinedStream);
+        final KStream<String, TruckGeoSpeedJoin> filteredStream = 
+        		filterStreamForViolationEvents(joinedStream);
         
         /* Write the violation events to the violation topic */
-        filteredStream.to(SINK_DRIVER_VIOLATION_EVENTS_TOPIC, Produced.with(new Serdes.StringSerde(), new TruckGeoSpeedJoinSerde()));
+        filteredStream.to(SINK_DRIVER_VIOLATION_EVENTS_TOPIC, 
+        		Produced.with(new Serdes.StringSerde(), new TruckGeoSpeedJoinSerde()));
         
 		
 		/* Build Topology */
 		Topology streamsTopology = builder.build();
 
-		LOGGER.debug("Truck-Join-And-Filter-Micro-Service Topoogy is: " + streamsTopology.describe());
+		LOGGER.debug("Truck-Join-And-Filter-Micro-Service Topoogy is: " 
+				+ streamsTopology.describe());
 		
 		/* Create Streams App */
 		KafkaStreams speedingDriversStreamsApps = new KafkaStreams(streamsTopology, configs);
@@ -113,7 +117,9 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 
 	private KStream<String, TruckGeoSpeedJoin> filterStreamForViolationEvents(
 			final KStream<String, TruckGeoSpeedJoin> joinedStream) {
-		Predicate<String, TruckGeoSpeedJoin> violationEventPredicate = new Predicate<String, TruckGeoSpeedJoin>() {
+		
+		Predicate<String, TruckGeoSpeedJoin> violationEventPredicate = 
+				new Predicate<String, TruckGeoSpeedJoin>() {
 
 			@Override
 			public boolean test(String key, TruckGeoSpeedJoin truckGeo) {
@@ -121,7 +127,9 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 			}
 		};
 		/* Filter for Violation events on the stream */
-        final KStream<String, TruckGeoSpeedJoin> filteredStream = joinedStream.filter(violationEventPredicate);
+        final KStream<String, TruckGeoSpeedJoin> filteredStream = 
+        		joinedStream.filter(violationEventPredicate);
+        
 		return filteredStream;
 	}
 
@@ -131,25 +139,30 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 			final KStream<String, TruckGeoEventEnriched> geoStream,
 			final KStream<String, TruckSpeedEventEnriched> speedStream) {
 		
+		/* Create a Value Joiner that merges fields of both streams */
 		ValueJoiner<TruckGeoEventEnriched, TruckSpeedEventEnriched, TruckGeoSpeedJoin> joiner = 
         		new ValueJoiner<TruckGeoEventEnriched, TruckSpeedEventEnriched, TruckGeoSpeedJoin>() {
 
-			@Override
-			public TruckGeoSpeedJoin apply(TruckGeoEventEnriched geoStreamJoin,
-					TruckSpeedEventEnriched speedStreamJoin) {
-				return new TruckGeoSpeedJoin(geoStreamJoin, speedStreamJoin);
-			}
+					@Override
+					public TruckGeoSpeedJoin apply(TruckGeoEventEnriched geoStreamJoin,
+							TruckSpeedEventEnriched speedStreamJoin) {
+						return new TruckGeoSpeedJoin(geoStreamJoin, speedStreamJoin);
+					}
 		};
-		
 		
 		/* Window time of 1.5 seconds */
         long windowTime = 1500;
 		JoinWindows joinWindow = JoinWindows.of(windowTime);
 		
-		/* Join the Two Streams */
-		final KStream<String, TruckGeoSpeedJoin> joinedStream = geoStream.join(speedStream, joiner, joinWindow);
+		/* Join the 2 Streams.The join key is always the key of the message 
+		 * which is the driverId for both streams */
+		final KStream<String, TruckGeoSpeedJoin> joinedStream 
+			= geoStream.join(speedStream, joiner, joinWindow);
+		
 		return joinedStream;
 	}
+
+
 		
 	@Override
 	protected void configureSerdes(Properties props, Map<String, Object> result) {

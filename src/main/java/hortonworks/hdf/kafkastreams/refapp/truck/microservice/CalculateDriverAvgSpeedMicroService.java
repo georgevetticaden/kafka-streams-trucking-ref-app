@@ -40,7 +40,7 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CalculateDriverAvgSpeedMicroService.class);			
 	
-	private static final String STREAMS_APP_ID = "truck-calculate-driver-avg-speed-micro-service";
+	private static final String STREAMS_APP_ID = "truck-micro-service-truck-calculate-driver-avg";
 	
 	private static final String SOURCE_GEO_SPEED_JOIN_FILTER_TOPIC = "driver-violation-events";	
 	private static final String SINK_DRIVER_AVG_SPEED_TOPIC= "driver-average-speed";
@@ -99,21 +99,25 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 		StreamsBuilder builder = new StreamsBuilder();
 
         /* Consume from driver-violation-events stream*/
-        final KStream<String, TruckGeoSpeedJoin> geoSpeedJoinFilteredStream = builder.stream(SOURCE_GEO_SPEED_JOIN_FILTER_TOPIC, 
-        															Consumed.with(new Serdes.StringSerde(), new TruckGeoSpeedJoinSerde()));		
+        final KStream<String, TruckGeoSpeedJoin> geoSpeedJoinFilteredStream = 
+        		builder.stream(SOURCE_GEO_SPEED_JOIN_FILTER_TOPIC,
+        						Consumed.with(new Serdes.StringSerde(), new TruckGeoSpeedJoinSerde()));		
 
         /* Calculate average speed of driver over 3 minute window */
-		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = calculateDriverAvgSpeedOver3MinuteWindow(geoSpeedJoinFilteredStream);
+		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = 
+				calculateDriverAvgSpeedOver3MinuteWindow(geoSpeedJoinFilteredStream);
         
         /* Write averages to the driver-average-speed topic */
 		KStream<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedStream =  driverAvgSpeedTable.toStream();
-		driverAvgSpeedStream.to(SINK_DRIVER_AVG_SPEED_TOPIC, Produced.with(new WindowSerde(), new DriverSpeedAvgValueSerde()));
+		driverAvgSpeedStream.to(SINK_DRIVER_AVG_SPEED_TOPIC, 
+								Produced.with(new WindowSerde(), new DriverSpeedAvgValueSerde()));
         
 		
 		/* Build Topology */
 		Topology streamsTopology = builder.build();
 
-		LOGGER.debug("Truck-Calculate-Driver-Avg-Speed-Micro-Service Topoogy is: " + streamsTopology.describe());
+		LOGGER.debug("Truck-Calculate-Driver-Avg-Speed-Micro-Service Topoogy is: " 
+				+ streamsTopology.describe());
 		
 		/* Create Streams App */
 		KafkaStreams speedingDriversStreamsApps = new KafkaStreams(streamsTopology, configs);
@@ -121,8 +125,9 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 	}
 
 
-	private KTable<Windowed<String>, DriverSpeedAvgValue> calculateDriverAvgSpeedOver3MinuteWindow(
-	final KStream<String, TruckGeoSpeedJoin> filteredStream) {
+	private KTable<Windowed<String>, DriverSpeedAvgValue> calculateDriverAvgSpeedOver3MinuteWindow 
+			(final KStream<String, TruckGeoSpeedJoin> filteredStream) {
+		
 		//first group by driverId
 		KGroupedStream<String, TruckGeoSpeedJoin> groupedStream = filteredStream.groupByKey();
 		
@@ -131,8 +136,9 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 		window.until(TimeUnit.MINUTES.toMillis(3));
 		TimeWindowedKStream<String, TruckGeoSpeedJoin> windowStream = groupedStream.windowedBy(window);
 		
-		//Perform aggregration over window
-		Initializer<DriverSpeedRunningCountAndSum> avgInitializer = new Initializer<DriverSpeedRunningCountAndSum>() {
+		//Perform running-count aggregation over window for average speed calculation
+		Initializer<DriverSpeedRunningCountAndSum> avgInitializer = 
+				new Initializer<DriverSpeedRunningCountAndSum>() {
 		
 			@Override
 			public DriverSpeedRunningCountAndSum apply() {
@@ -140,30 +146,39 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 			}
 		};	
 		
-		//Calculate Average on the aggregration table
 		KTable<Windowed<String>, DriverSpeedRunningCountAndSum> driverSpeedSumAndCountTable = 
 				windowStream.aggregate(avgInitializer, 
 									   new DriverAvgSpeedAgregrator(),
-									   Materialized.<String, DriverSpeedRunningCountAndSum, WindowStore<Bytes, byte[]>>as("time-windowed-aggregated-stream-store")
-								          .withValueSerde(new DriverSpeedRunningCountAndSumSerde())
+									   Materialized.<String, DriverSpeedRunningCountAndSum, 
+									   				WindowStore<Bytes,byte[]>>
+												  as("time-windowed-aggregated-stream-store")
+								       .withValueSerde(new DriverSpeedRunningCountAndSumSerde())
 								        );
-                
 		
-		ValueMapper<DriverSpeedRunningCountAndSum, DriverSpeedAvgValue> averageMapper = new ValueMapper<DriverSpeedRunningCountAndSum, DriverSpeedAvgValue>() {
+		//Calculate Average on the aggregation table
+		ValueMapper<DriverSpeedRunningCountAndSum, DriverSpeedAvgValue> averageMapper = 
+				new ValueMapper<DriverSpeedRunningCountAndSum, DriverSpeedAvgValue>() {
 
 			@Override
 			public DriverSpeedAvgValue apply(DriverSpeedRunningCountAndSum driverSpeedSumAndCountValue) {
-				double average = driverSpeedSumAndCountValue.getRunningSum() / driverSpeedSumAndCountValue.getRunningCount();
-				//LOGGER.debug("Completed avarage aggregration for Driver["+ driverSpeedSumAndCountValue.getDriverName()+"], runningCount["+driverSpeedSumAndCountValue.getRunningCount()+"], average speed is: " + average);
+				double average = 
+						driverSpeedSumAndCountValue.getRunningSum() / 
+						driverSpeedSumAndCountValue.getRunningCount();
+				
 				long eventTimeLong = new Date().getTime();
-				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), driverSpeedSumAndCountValue.getDriverName(), driverSpeedSumAndCountValue.getRoute(), average, eventTimeLong);
+				return new DriverSpeedAvgValue(driverSpeedSumAndCountValue.getDriverId(), 
+											   driverSpeedSumAndCountValue.getDriverName(), 
+											   driverSpeedSumAndCountValue.getRoute(), 
+											   average, eventTimeLong);
 			}
 		};
 		
 		
-		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = driverSpeedSumAndCountTable.mapValues(averageMapper);
+		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = 
+				driverSpeedSumAndCountTable.mapValues(averageMapper);
 		return driverAvgSpeedTable;
 	}		
+	
 	
 	private void configureCommitInterval() {
 		// Configure interval the smae as the 3 minute window
