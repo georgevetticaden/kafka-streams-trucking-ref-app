@@ -7,24 +7,24 @@ import hortonworks.hdf.schema.refapp.trucking.TruckSpeedEventEnriched;
 
 public class TruckGeoSpeedJoin {
 	
-	  /* This field is required for the Hive Kafka druid index service */
+	  /* This field is required for the Hive Kafka druid index service. Fields need to be lower case for the Hive/Kafka/Druid indexing service to work */
 	  private long __time;
-	  private String geoEventTime;
-	  private long geoEventTimeLong;
-	  private String eventSource;
-	  private int truckId;
-	  private int driverId;
-	  private String driverName;
-	  private int routeId;
+	  private String geoeventtime;
+	  private long geoeventtimelong;
+	  private String eventsource;
+	  private int truckid;
+	  private int driverid;
+	  private String drivername;
+	  private int routeid;
 	  private String route;
-	  private String eventType;
+	  private String eventtype;
 	  private double latitude;
 	  private double longitude;
-	  private long correlationId;
-	  private String geoAddress;
+	  private long correlationid;
+	  private String geoaddress;
 	  
-	  private String speedEventTime;
-	  private long speedEventTimeLong;
+	  private String speedeventtime;
+	  private long speedeventtimelong;
 	  private int speed;
 	  
 	
@@ -41,80 +41,87 @@ public class TruckGeoSpeedJoin {
 			long speedEventTimeLong, int speed) {
 		super();
 		this.__time = __time;
-		this.geoEventTime = geoEventTime;
-		this.geoEventTimeLong = geoEventTimeLong;
-		this.eventSource = eventSource;
-		this.truckId = truckId;
-		this.driverId = driverId;
-		this.driverName = driverName;
-		this.routeId = routeId;
+		this.geoeventtime = geoEventTime;
+		this.geoeventtimelong = geoEventTimeLong;
+		this.eventsource = eventSource;
+		this.truckid = truckId;
+		this.driverid = driverId;
+		this.drivername = driverName;
+		this.routeid = routeId;
 		this.route = route;
-		this.eventType = eventType;
+		this.eventtype = eventType;
 		this.latitude = latitude;
 		this.longitude = longitude;
-		this.correlationId = correlationId;
-		this.geoAddress = geoAddress;
-		this.speedEventTime = speedEventTime;
-		this.speedEventTimeLong = speedEventTimeLong;
+		this.correlationid = correlationId;
+		this.geoaddress = geoAddress;
+		this.speedeventtime = speedEventTime;
+		this.speedeventtimelong = speedEventTimeLong;
 		this.speed = speed;
 	}
 
 	public TruckGeoSpeedJoin(TruckGeoEventEnriched geoStream, TruckSpeedEventEnriched speedStream) {
-		this.geoEventTime = String.valueOf(geoStream.getEventTime());
-		this.geoEventTimeLong = geoStream.getEventTimeLong();
-		this.eventSource = String.valueOf(geoStream.getEventSource());
-		this.truckId = geoStream.getTruckId();
-		this.driverId = geoStream.getDriverId();
-		this.driverName = String.valueOf(geoStream.getDriverName());
-		this.routeId = geoStream.getRouteId();
+		this.geoeventtime = String.valueOf(geoStream.getEventTime());
+		this.geoeventtimelong = geoStream.getEventTimeLong();
+		this.eventsource = String.valueOf(geoStream.getEventSource());
+		this.truckid = geoStream.getTruckId();
+		this.driverid = geoStream.getDriverId();
+		this.drivername = String.valueOf(geoStream.getDriverName());
+		this.routeid = geoStream.getRouteId();
 		this.route = String.valueOf(geoStream.getRoute());
-		this.eventType = String.valueOf(geoStream.getEventType());
+		this.eventtype = String.valueOf(geoStream.getEventType());
 		this.latitude = geoStream.getLatitude();
 		this.longitude = geoStream.getLongitude();
-		this.correlationId = geoStream.getCorrelationId();
-		this.geoAddress = String.valueOf(geoStream.getGeoAddress());
+		this.correlationid = geoStream.getCorrelationId();
+		this.geoaddress = String.valueOf(geoStream.getGeoAddress());
 		
-		this.speedEventTime = String.valueOf(speedStream.getEventTime());
-		this.speedEventTimeLong = speedStream.getEventTimeLong();
+		this.speedeventtime = String.valueOf(speedStream.getEventTime());
+		this.speedeventtimelong = speedStream.getEventTimeLong();
 		this.speed = speedStream.getSpeed();
 		
 		this.__time = geoStream.getEventTimeLong();
 	}
 
-	public String getGeoEventTime() {
-		return geoEventTime;
+
+
+
+	public long get__time() {
+		return __time;
 	}
 
-	public long getGeoEventTimeLong() {
-		return geoEventTimeLong;
+	public String getGeoeventtime() {
+		return geoeventtime;
 	}
 
-	public String getEventSource() {
-		return eventSource;
+	public long getGeoeventtimelong() {
+		return geoeventtimelong;
 	}
 
-	public int getTruckId() {
-		return truckId;
+	public String getEventsource() {
+		return eventsource;
 	}
 
-	public int getDriverId() {
-		return driverId;
+	public int getTruckid() {
+		return truckid;
 	}
 
-	public String getDriverName() {
-		return driverName;
+	public int getDriverid() {
+		return driverid;
 	}
 
-	public int getRouteId() {
-		return routeId;
+	public String getDrivername() {
+		return drivername;
+	}
+
+	public int getRouteid() {
+		return routeid;
 	}
 
 	public String getRoute() {
 		return route;
 	}
 
-	public String getEventType() {
-		return eventType;
+	public String getEventtype() {
+		return eventtype;
 	}
 
 	public double getLatitude() {
@@ -125,20 +132,20 @@ public class TruckGeoSpeedJoin {
 		return longitude;
 	}
 
-	public long getCorrelationId() {
-		return correlationId;
+	public long getCorrelationid() {
+		return correlationid;
 	}
 
-	public String getGeoAddress() {
-		return geoAddress;
+	public String getGeoaddress() {
+		return geoaddress;
 	}
 
-	public String getSpeedEventTime() {
-		return speedEventTime;
+	public String getSpeedeventtime() {
+		return speedeventtime;
 	}
 
-	public long getSpeedEventTimeLong() {
-		return speedEventTimeLong;
+	public long getSpeedeventtimelong() {
+		return speedeventtimelong;
 	}
 
 	public int getSpeed() {
@@ -149,12 +156,6 @@ public class TruckGeoSpeedJoin {
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);
 	}
-
-	public long get__time() {
-		return __time;
-	}
-
-	
 
 
 }

@@ -15,7 +15,6 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
-import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.JoinWindows;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Predicate;
@@ -123,7 +122,7 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 
 			@Override
 			public boolean test(String key, TruckGeoSpeedJoin truckGeo) {
-				return !"Normal".equals(truckGeo.getEventType());
+				return !"Normal".equals(truckGeo.getEventtype());
 			}
 		};
 		/* Filter for Violation events on the stream */

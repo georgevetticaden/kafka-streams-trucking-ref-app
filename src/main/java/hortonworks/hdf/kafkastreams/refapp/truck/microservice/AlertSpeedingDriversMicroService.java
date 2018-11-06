@@ -109,7 +109,7 @@ public class AlertSpeedingDriversMicroService extends BaseStreamsApp {
 			@Override
 			public boolean test(String key, DriverSpeedAvgValue value) {
 				LOGGER.info("AVerage speed that filter be applied is: " + value);
-				return  value != null && value.getSpeed_AVG() > HIGH_SPEED;
+				return  value != null && value.getSpeed_avg() > HIGH_SPEED;
 			}
 		};
 		KStream<String, DriverSpeedAvgValue> speedingDriversStream = 

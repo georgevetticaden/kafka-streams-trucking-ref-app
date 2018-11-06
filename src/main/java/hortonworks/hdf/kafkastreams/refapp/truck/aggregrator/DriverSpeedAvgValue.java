@@ -4,11 +4,14 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class DriverSpeedAvgValue {
 	
-	private Integer driverId;
-	private String driverName;
+	private Integer driverid;
+	private String drivername;
 	private String route;
-	private double speed_AVG;
-	private long processingTime;
+	private double speed_avg;
+	private long processingtime;
+   
+	/* This field is required for the Hive Kafka druid index service. Fields need to be lower case for the Hive/Kafka/Druid indexing service to work */
+	private long __time;	
 	
 	public DriverSpeedAvgValue() {
 
@@ -18,32 +21,37 @@ public class DriverSpeedAvgValue {
 	public DriverSpeedAvgValue(Integer driverId, String driverName, String route,
 			double average, long processingTime) {
 		super();
-		this.driverId = driverId;
-		this.driverName = driverName;
+		this.driverid = driverId;
+		this.drivername = driverName;
 		this.route = route;
-		this.speed_AVG = average;
-		this.processingTime = processingTime;
-	}
-	
-
-	public Integer getDriverId() {
-		return driverId;
-	}
-
-	public String getDriverName() {
-		return driverName;
+		this.speed_avg = average;
+		this.processingtime = processingTime;
+		this.__time = processingTime;
 	}
 
 
-
-
-	public double getSpeed_AVG() {
-		return speed_AVG;
+	public Integer getDriverid() {
+		return driverid;
 	}
 
 
-	public long getProcessingTime() {
-		return processingTime;
+	public String getDrivername() {
+		return drivername;
+	}
+
+
+	public String getRoute() {
+		return route;
+	}
+
+
+	public double getSpeed_avg() {
+		return speed_avg;
+	}
+
+
+	public long getProcessingtime() {
+		return processingtime;
 	}
 
 
@@ -53,15 +61,9 @@ public class DriverSpeedAvgValue {
 	}
 
 
-	public String getRoute() {
-		return route;
+	public long get__time() {
+		return __time;
 	}
-
-
-	public void setRoute(String route) {
-		this.route = route;
-	}
-
 
 	
 }
