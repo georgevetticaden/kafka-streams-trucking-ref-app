@@ -164,8 +164,13 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 
 		
 	@Override
+	/**
+	 * Configure the Hortonworks Schema Registry Avro Serdes to deserialize 
+	 * the avro payload from syndicate-geo-event-avro and syndicate-speed-event-avro
+	 */
 	protected void configureSerdes(Properties props, Map<String, Object> result) {
-		props.put(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(), result.get("schema.registry.url"));
+		props.put(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(), 
+				   result.get("schema.registry.url"));
         props.put(AbstractAvroSnapshotDeserializer.SPECIFIC_AVRO_READER, true);
         props.put(KafkaAvroSerializer.STORE_SCHEMA_VERSION_ID_IN_HEADER,
                 STORE_SCHEMA_VERSION_ID_IN_HEADER_POLICY);    		
@@ -174,5 +179,8 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, KafkaAvroSerde.class);        
   
 	}		
+	
+	
+	
 	
 }
