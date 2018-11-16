@@ -99,7 +99,10 @@ public class AlertSpeedingDriversMicroService extends BaseStreamsApp {
 		return speedingDriversStreamsApps;
 	}
 
-
+	/*
+	 * Filter the stream for events whose average speed is greater 
+	 * than the configured HIGH_SPEED
+	 */
 	private KStream<String, DriverSpeedAvgValue> filterStreamForSpeedingDrivers(
 					KStream<String, DriverSpeedAvgValue> driverAvgSpeedStream) {
 		

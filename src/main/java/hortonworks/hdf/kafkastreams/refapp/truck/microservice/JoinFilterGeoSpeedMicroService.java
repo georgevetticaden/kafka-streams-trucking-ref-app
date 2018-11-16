@@ -100,7 +100,6 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
         /* Write the violation events to the violation topic */
         filteredStream.to(SINK_DRIVER_VIOLATION_EVENTS_TOPIC, 
         		Produced.with(new Serdes.StringSerde(), new TruckGeoSpeedJoinSerde()));
-        
 		
 		/* Build Topology */
 		Topology streamsTopology = builder.build();
