@@ -14,6 +14,6 @@ TBLPROPERTIES
 "druid.query.granularity" = "HOUR"
 );
 
-ALTER TABLE druid_kafka_driver_violation_events_2 SET TBLPROPERTIES('druid.kafka.ingestion' = 'START');
+ALTER TABLE druid_kafka_driver_violation_events SET TBLPROPERTIES('druid.kafka.ingestion' = 'START');
 
 
