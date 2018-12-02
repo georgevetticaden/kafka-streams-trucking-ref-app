@@ -1,4 +1,4 @@
-CREATE EXTERNAL TABLE druid_kafka_driver_violation_events_2
+CREATE EXTERNAL TABLE druid_kafka_driver_violation_events
 (`__time` timestamp, eventSource string, truckId int, driverId int, driverName string, routeId int, route string, eventType string, latitude double, longitude double, correlationId int, geoAddress string)
 STORED BY 'org.apache.hadoop.hive.druid.DruidStorageHandler'
 TBLPROPERTIES
