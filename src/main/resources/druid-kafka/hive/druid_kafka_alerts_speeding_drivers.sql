@@ -15,3 +15,4 @@ TBLPROPERTIES
 );
 
 ALTER TABLE druid_kafka_alerts_speeding_drivers SET TBLPROPERTIES('druid.kafka.ingestion' = 'START');
+ALTER TABLE druid_kafka_alerts_speeding_drivers SET TBLPROPERTIES('druid.kafka.ingestion' = 'STOP');

@@ -15,5 +15,5 @@ TBLPROPERTIES
 );
 
 ALTER TABLE druid_kafka_driver_violation_events SET TBLPROPERTIES('druid.kafka.ingestion' = 'START');
-
+ALTER TABLE druid_kafka_driver_violation_events SET TBLPROPERTIES('druid.kafka.ingestion' = 'STOP');
 
