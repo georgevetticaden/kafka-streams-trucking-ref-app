@@ -18,6 +18,11 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Microservice that filters high speeding Drivers
+ * @author gvetticaden
+ *
+ */
 public class AlertSpeedingDriversMicroService extends BaseStreamsApp {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AlertSpeedingDriversMicroService.class);			

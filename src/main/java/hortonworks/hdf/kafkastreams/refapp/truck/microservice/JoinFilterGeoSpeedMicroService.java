@@ -28,6 +28,12 @@ import com.hortonworks.registries.schemaregistry.serdes.avro.AbstractAvroSnapsho
 import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroSerde;
 import com.hortonworks.registries.schemaregistry.serdes.avro.kafka.KafkaAvroSerializer;
 
+/**
+ * Kafka Streams MicroService that consumes from the geo and speed stream topics, 
+ * joins the streams on driverId and filters for Event' that are violations (Not Normal)
+ * @author gvetticaden
+ *
+ */
 public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JoinFilterGeoSpeedMicroService.class);			
@@ -79,6 +85,10 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
         System.exit(0);		
 	}
 
+	/**
+	 * Builds the Kafka Streams topology for the JoinFilter MicroService
+	 * @return
+	 */
 	private KafkaStreams buildKafkaStreamsApp() {
 		
 		StreamsBuilder builder = new StreamsBuilder();
@@ -112,7 +122,11 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 		return speedingDriversStreamsApps;
 	}
 
-
+	/**
+	 * Filters the join streams so that we filter for Violation Events which are Non-Normal Events
+	 * @param joinedStream
+	 * @return
+	 */
 	private KStream<String, TruckGeoSpeedJoin> filterStreamForViolationEvents(
 			final KStream<String, TruckGeoSpeedJoin> joinedStream) {
 		
@@ -130,9 +144,13 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
         
 		return filteredStream;
 	}
-
-
-
+	
+	/**
+	 * Joins the Geo and Speed Streams on driverId
+	 * @param geoStream
+	 * @param speedStream
+	 * @return
+	 */
 	private KStream<String, TruckGeoSpeedJoin> joinStreams(
 			final KStream<String, TruckGeoEventEnriched> geoStream,
 			final KStream<String, TruckSpeedEventEnriched> speedStream) {

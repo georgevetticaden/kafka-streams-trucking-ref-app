@@ -36,6 +36,11 @@ import org.apache.kafka.streams.state.WindowStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A MicroService that calculates the average speed of driver over a 3 minute tumbling windo
+ * @author gvetticaden
+ *
+ */
 public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CalculateDriverAvgSpeedMicroService.class);			
@@ -128,10 +133,11 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 		return speedingDriversStreamsApps;
 	}
 
-
-
-
-
+	/**
+	 * Calculates the average speed of all the events within the weindow
+	 * @param driverSpeedSumAndCountTable
+	 * @return
+	 */
 	private KTable<Windowed<String>, DriverSpeedAvgValue> calculateAverageOfDriverSpeedWindow(
 			KTable<Windowed<String>, DriverSpeedRunningCountAndSum> driverSpeedSumAndCountTable) {
 		//Calculate Average on the aggregation table
@@ -153,15 +159,17 @@ public class CalculateDriverAvgSpeedMicroService extends BaseStreamsApp {
 		};
 		
 		
+		
 		KTable<Windowed<String>, DriverSpeedAvgValue> driverAvgSpeedTable = 
 				driverSpeedSumAndCountTable.mapValues(averageMapper);
 		return driverAvgSpeedTable;
 	}
 
-
-
-
-
+	/**
+	 * Creates the three minute tumbling window
+	 * @param filteredStream
+	 * @return
+	 */
 	private KTable<Windowed<String>, DriverSpeedRunningCountAndSum> createDriverSpeedWindow(
 			final KStream<String, TruckGeoSpeedJoin> filteredStream) {
 		//first group by driverId
