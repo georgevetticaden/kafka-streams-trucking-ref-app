@@ -123,6 +123,10 @@ public abstract class BaseStreamsApp {
 				.type(String.class)
 				.help("Either PLAINTEXT or SASL_PLAINTEXT");
 		
+		parser.addArgument("--pause.period.ms").action(store())
+		.required(false)
+		.type(Long.class)
+		.help("To Add pauses in microservices");		
 
 
 		return parser;

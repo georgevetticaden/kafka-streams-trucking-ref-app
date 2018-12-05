@@ -44,13 +44,17 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 	private static final String SOURCE_SPEED_STREAM_TOPIC = "syndicate-speed-event-avro";
 	private static final String SINK_DRIVER_VIOLATION_EVENTS_TOPIC= "driver-violation-events";
 	
+	private Long pausePeriod = 0L;
 
 	
 	public JoinFilterGeoSpeedMicroService(Map<String, Object> kafkaConfigMap) {
 		super(kafkaConfigMap, STREAMS_APP_ID );
 		/* Override with the SR Serdes */
 		configureSerdes(configs, kafkaConfigMap);
+		configurePausePeriod(kafkaConfigMap);
 	}
+
+
 
 	public static void main(String[] args) {
 		
@@ -135,8 +139,22 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
 
 			@Override
 			public boolean test(String key, TruckGeoSpeedJoin truckGeo) {
+				
+				if(pausePeriod != null && pausePeriod > 0) {
+					pause(pausePeriod);
+				}
 				return !"Normal".equals(truckGeo.getEventtype());
 			}
+			private void pause(long pauseTime) {
+				LOGGER.debug("Pausing["+pauseTime +"] started");
+				try {
+					Thread.sleep(pauseTime);
+				} catch (InterruptedException e) {
+					//swallow
+				}
+				LOGGER.debug("Pausing finished");
+				
+			}			
 		};
 		/* Filter for Violation events on the stream */
         final KStream<String, TruckGeoSpeedJoin> filteredStream = 
@@ -197,7 +215,12 @@ public class JoinFilterGeoSpeedMicroService extends BaseStreamsApp {
   
 	}		
 	
-	
+	private void configurePausePeriod(Map<String, Object> kafkaConfigMap) {
+		if(kafkaConfigMap.get("pause.period.ms") != null)
+				this.pausePeriod = (Long)kafkaConfigMap.get("pause.period.ms");
+		LOGGER.info("Configured Pause Period is: " + pausePeriod + " ms");
+		
+	}	
 	
 	
 }
