@@ -1,15 +1,13 @@
-CREATE EXTERNAL TABLE kafka_truck_geo_events
+CREATE EXTERNAL TABLE kafka_truck_speed_events
 (eventTime timestamp, eventSource string, truckId int, 
-driverId int, driverName string, 
-routeId int, route string, eventType string, 
-latitude double, longitude double, correlationId int, 
-geoAddress string
+driverId int, driverName string, routeId int, route string, 
+speed int 
 )
 
 STORED BY 'org.apache.hadoop.hive.kafka.KafkaStorageHandler'
 
-TBLPROPERTIES(
-"kafka.topic" = "syndicate-geo-event-json",
+TBLPROPERTIES (
+"kafka.topic" = "syndicate-speed-event-json",
 "kafka.consumer.sasl.mechanism" = "GSSAPI",
 "kafka.consumer.sasl.kerberos.service.name"="kafka",
 "kafka.consumer.security.protocol" = "SASL_SSL",
